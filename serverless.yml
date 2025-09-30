@@ -8,8 +8,9 @@ provider:
   name: aws
   runtime: nodejs22.x
   region: eu-north-1
+  stage: dev
   environment:
-    DYNAMODB_TABLE: quiztopia-exam-dev
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     JWT_SECRET: ${env:JWT_SECRET}
   iam:
     role:
@@ -64,14 +65,14 @@ functions:
     handler: src/handlers/quiz.getUserQuizHandler
     events:
       - http:
-          path: quiz/{userid}/{quizid}
+          path: quiz/user/{userid}/{quizid}
           method: get
 
   deleteQuiz:
     handler: src/handlers/quiz.deleteQuizHandler
     events:
       - http:
-          path: quiz/{quizid}
+          path: quiz/delete/{quizid}
           method: delete
 
 resources:
