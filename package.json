@@ -1,0 +1,33 @@
+{
+  "name": "quiztopia-exam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serverless offline",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexander-p1/quiztopia-exam.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/alexander-p1/quiztopia-exam/issues"
+  },
+  "homepage": "https://github.com/alexander-p1/quiztopia-exam#readme",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.899.0",
+    "@aws-sdk/lib-dynamodb": "^3.899.0",
+    "@middy/core": "^6.4.5",
+    "@middy/http-error-handler": "^6.4.5",
+    "@middy/http-json-body-parser": "^6.4.5",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "serverless": "^4.19.1",
+    "serverless-offline": "^14.4.0"
+  }
+}
