@@ -1,0 +1,93 @@
+service: quiztopia-exam
+frameworkVersion: "4"
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: eu-north-1
+  environment:
+    DYNAMODB_TABLE: quiztopia-exam-dev
+    JWT_SECRET: ${env:JWT_SECRET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  signup:
+    handler: src/handlers/auth.signupHandler
+    events:
+      - http:
+          path: auth/signup
+          method: post
+
+  login:
+    handler: src/handlers/auth.loginHandler
+    events:
+      - http:
+          path: auth/login
+          method: post
+
+  getQuiz:
+    handler: src/handlers/quiz.getQuizHandler
+    events:
+      - http:
+          path: quiz
+          method: get
+
+  postQuiz:
+    handler: src/handlers/quiz.postQuizHandler
+    events:
+      - http:
+          path: quiz
+          method: post
+
+  postQuestion:
+    handler: src/handlers/quiz.postQuestionHandler
+    events:
+      - http:
+          path: quiz/question
+          method: post
+
+  getUserQuiz:
+    handler: src/handlers/quiz.getUserQuizHandler
+    events:
+      - http:
+          path: quiz/{userid}/{quizid}
+          method: get
+
+  deleteQuiz:
+    handler: src/handlers/quiz.deleteQuizHandler
+    events:
+      - http:
+          path: quiz/{quizid}
+          method: delete
+
+resources:
+  Resources:
+    QuizTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
