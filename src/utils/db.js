@@ -5,6 +5,7 @@ import {
   GetCommand,
   QueryCommand,
   DeleteCommand,
+  ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({});
@@ -58,7 +59,7 @@ export const getUserById = async (userId) => {
     TableName: TABLE_NAME,
     IndexName: "GSI1",
     KeyConditionExpression: "userId = :userId",
-    ExpressionAttributesValue: {
+    ExpressionAttributeValue: {
       ":userId": userId,
     },
   });

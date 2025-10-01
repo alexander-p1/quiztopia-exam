@@ -1,7 +1,6 @@
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
-import httpCors from "@middy/http-cors";
 import { extractTokenFromEvent, verifyToken } from "../utils/jwt.js";
 import { success, error } from "../utils/responses.js";
 import {
@@ -10,7 +9,7 @@ import {
   getQuizById,
   addQuestionToQuiz,
   deleteQuizFromDb,
-} from "../utils/database.js";
+} from "../utils/db.js";
 
 // Hämta alla quiz (publik)
 const getQuiz = async (event) => {
@@ -134,22 +133,17 @@ const deleteQuiz = async (event) => {
 // Exportera med Middy middleware
 export const getQuizHandler = middy(getQuiz)
   .use(httpErrorHandler())
-  .use(httpCors());
 
 export const postQuizHandler = middy(postQuiz)
   .use(httpJsonBodyParser())
   .use(httpErrorHandler())
-  .use(httpCors());
 
 export const postQuestionHandler = middy(postQuestion)
   .use(httpJsonBodyParser())
   .use(httpErrorHandler())
-  .use(httpCors());
 
 export const getUserQuizHandler = middy(getUserQuiz)
   .use(httpErrorHandler())
-  .use(httpCors());
 
 export const deleteQuizHandler = middy(deleteQuiz)
   .use(httpErrorHandler())
-  .use(httpCors());

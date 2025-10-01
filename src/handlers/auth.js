@@ -60,7 +60,7 @@ const signup = async (event) => {
 const login = async (event) => {
   try {
     const { email, password } = event.body;
-
+    
     // Validering
     if (!email || !password) {
       return error(400, "Email and password is needed");
