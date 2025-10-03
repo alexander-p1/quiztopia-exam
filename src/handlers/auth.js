@@ -10,7 +10,6 @@ const signup = async (event) => {
   try {
     const { email, password } = event.body;
 
-    // Validering
     if (!email || !password) {
       return error(400, "email and password is required");
     }
@@ -24,16 +23,13 @@ const signup = async (event) => {
       return error(400, "email not valid format");
     }
 
-    // Hasha lösen
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Skapa användare
     const user = await createUser({
       email: email.toLowerCase(),
       password: hashedPassword,
     });
 
-    // Generera token
     const token = generateToken({
       userId: user.userId,
       email: user.email,
@@ -50,7 +46,7 @@ const signup = async (event) => {
   } catch (err) {
     console.error("Signup error:", err);
 
-    if (error.message === "User already exist") {
+    if (err.message === "User already exist") {
       return error(400, "This email already exist");
     }
     return error(500, "Internal server error");
@@ -60,22 +56,19 @@ const signup = async (event) => {
 const login = async (event) => {
   try {
     const { email, password } = event.body;
-    
-    // Validering
+
     if (!email || !password) {
       return error(400, "Email and password is needed");
     }
 
-    // Hämta användare
     const user = await getUserByEmail(email.toLowerCase());
     if (!user) {
       return error(401, "Invalid credentials");
     }
 
-    // Verifiera lösen
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return error(401, "Invalid password");
+      return error(401, "Invalid credentials");
     }
 
     const token = generateToken({
@@ -92,7 +85,7 @@ const login = async (event) => {
       message: "Login successful",
     });
   } catch (err) {
-    console.error("Login Error", error);
+    console.error("Login Error", err);
     return error(500, "Internal server error");
   }
 };

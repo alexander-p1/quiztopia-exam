@@ -41,38 +41,38 @@ functions:
           method: post
 
   getQuiz:
-    handler: src/handlers/quiz.getQuizHandler
+    handler: src/handlers/quiz/getQuiz.getQuizHandler
     events:
       - http:
           path: quiz
           method: get
 
   postQuiz:
-    handler: src/handlers/quiz.postQuizHandler
+    handler: src/handlers/quiz/postQuiz.postQuizHandler
     events:
       - http:
           path: quiz
           method: post
 
   postQuestion:
-    handler: src/handlers/quiz.postQuestionHandler
+    handler: src/handlers/quiz/postQuestion.postQuestionHandler
     events:
       - http:
           path: quiz/question
           method: post
 
   getUserQuiz:
-    handler: src/handlers/quiz.getUserQuizHandler
+    handler: src/handlers/quiz/getUserQuiz.getUserQuizHandler
     events:
       - http:
-          path: quiz/user/{userid}/{quizid}
+          path: quiz/{quizId}
           method: get
 
   deleteQuiz:
-    handler: src/handlers/quiz.deleteQuizHandler
+    handler: src/handlers/quiz/deleteQuiz.deleteQuizHandler
     events:
       - http:
-          path: quiz/delete/{quizid}
+          path: quiz/{quizId}
           method: delete
 
 resources:

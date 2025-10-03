@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deploy": "serverless",
     "dev": "serverless offline",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,6 +29,7 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "serverless": "^4.19.1",
-    "serverless-offline": "^14.4.0"
+    "serverless-offline": "^14.4.0",
+    "uuid": "^13.0.0"
   }
 }

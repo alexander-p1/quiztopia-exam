@@ -3,19 +3,18 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   GetCommand,
-  QueryCommand,
   DeleteCommand,
   ScanCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { v4 as uuidv4 } from "uuid";
 
 const client = new DynamoDBClient({});
 const ddb = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.DYNAMODB_TABLE;
 
 export const createUser = async (userData) => {
-  const userId = `user_${Date.now()}_${Math.random()
-    .toString(36)
-    .substring(2)}`;
+  const userId = uuidv4();
 
   const command = new PutCommand({
     TableName: TABLE_NAME,
@@ -27,7 +26,7 @@ export const createUser = async (userData) => {
       password: userData.password,
       createdAt: new Date().toISOString(),
     },
-    ConditionExpression: "attribute_not_exists(pk)",
+    ConditionExpression: "attribute_not_exists(PK)",
   });
 
   try {
@@ -54,26 +53,8 @@ export const getUserByEmail = async (email) => {
   return result.Item;
 };
 
-export const getUserById = async (userId) => {
-  const command = new QueryCommand({
-    TableName: TABLE_NAME,
-    IndexName: "GSI1",
-    KeyConditionExpression: "userId = :userId",
-    ExpressionAttributeValue: {
-      ":userId": userId,
-    },
-  });
-
-  const result = await ddb.send(command);
-  return result.Items?.[0];
-};
-
-// Quiz
-
 export const createQuiz = async (title, user) => {
-  const quizId = `quiz_${Date.now()}_${Math.random()
-    .toString(36)
-    .substring(2)}`;
+  const quizId = uuidv4();
 
   const command = new PutCommand({
     TableName: TABLE_NAME,
@@ -111,7 +92,7 @@ export const getAllQuizzes = async () => {
   }));
 };
 
-export const getQuizById = async (quizId, userId) => {
+export const getQuizById = async (quizId) => {
   const command = new GetCommand({
     TableName: TABLE_NAME,
     Key: {
@@ -134,7 +115,6 @@ export const getQuizById = async (quizId, userId) => {
 };
 
 export const addQuestionToQuiz = async (quizId, user, questionData) => {
-  // Först hämta quiz för att kolla ägare
   const getCommand = new GetCommand({
     TableName: TABLE_NAME,
     Key: {
@@ -152,24 +132,31 @@ export const addQuestionToQuiz = async (quizId, user, questionData) => {
     throw new Error("You are not owner of this quiz");
   }
 
-  // Lägg till frågan
   const newQuestion = {
-    questionId: `q_${Date.now()}`,
+    questionId: uuidv4(),
+    name: questionData.name,
     question: questionData.question,
     answer: questionData.answer,
     location: {
-      longitude: questionData.longitude,
-      latitude: questionData.latitude,
+      longitude: questionData.location.longitude,
+      latitude: questionData.location.latitude,
     },
     createdAt: new Date().toISOString(),
   };
 
-  const updateCommand = new PutCommand({
+  const updateCommand = new UpdateCommand({
     TableName: TABLE_NAME,
-    Item: {
-      ...result.Item,
-      questions: [...(result.Item.questions || []), newQuestion],
+    Key: {
+      PK: `QUIZ#${quizId}`,
+      SK: "METADATA",
     },
+    UpdateExpression:
+      "SET questions = list_append(if_not_exists(questions, :empty), :q)",
+    ExpressionAttributeValues: {
+      ":q": [newQuestion],
+      ":empty": [],
+    },
+    ReturnValues: "UPDATED_NEW",
   });
 
   await ddb.send(updateCommand);
@@ -177,7 +164,6 @@ export const addQuestionToQuiz = async (quizId, user, questionData) => {
 };
 
 export const deleteQuizFromDb = async (quizId, user) => {
-  // Först hämta quiz för att kolla ägare
   const getCommand = new GetCommand({
     TableName: TABLE_NAME,
     Key: {
@@ -195,7 +181,6 @@ export const deleteQuizFromDb = async (quizId, user) => {
     throw new Error("You are not owner of this quiz");
   }
 
-  // Ta bort quiz
   const deleteCommand = new DeleteCommand({
     TableName: TABLE_NAME,
     Key: {
